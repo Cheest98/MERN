@@ -9,8 +9,7 @@ import AddNoteDialog from "./components/AddNoteDialog";
 function App() {
   const [notes, setNotes] = useState<NoteModel[]>([]);
 
-  const[ showAddNoteDialog, setShowAddNoteDialog] = useState(true);
-
+  const [showAddNoteDialog, setShowAddNoteDialog] = useState(true);
 
   useEffect(() => {
     async function loadNotes() {
@@ -27,9 +26,7 @@ function App() {
   return (
     <Container>
       <Button
-        onClick={() => setShowAddNoteDialog(true)}>
-          Ad new note
-        </Button>
+      className="mb-4" onClick={() => setShowAddNoteDialog(true)}>Ad new note</Button>
       <Row xs={1} md={2} xl={3} className="g-4">
         {notes.map((note) => (
           <Col key={note._id}>
@@ -37,10 +34,15 @@ function App() {
           </Col>
         ))}
       </Row>
-      {showAddNoteDialog && 
-      <AddNoteDialog onDismiss={() => setShowAddNoteDialog(false)}
-      onNoteSaved={() => {}}
-       />}
+      {showAddNoteDialog && (
+        <AddNoteDialog
+          onDismiss={() => setShowAddNoteDialog(false)}
+          onNoteSaved={(newNote) => {
+            setNotes([...notes,newNote])
+            setShowAddNoteDialog(false);
+          }}
+        />
+      )}
     </Container>
   );
 }
