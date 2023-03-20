@@ -5,7 +5,6 @@ import NoteModel from "../models/note";
 
 export const getNotes: RequestHandler = async (req, res, next) => {
     try {
-        //throw createHttpError(401);
         const notes = await NoteModel.find().exec();
         res.status(200).json(notes);
     } catch (error) {
@@ -112,7 +111,7 @@ export const deleteNote: RequestHandler = async(req, res, next) => {
             throw createHttpError(404, "Note not found");
         }
         // nie działa
-        //await note.remove();
+        await note.deleteOne()
         
         res.sendStatus(204);
     } catch (error) {
