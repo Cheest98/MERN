@@ -1,3 +1,4 @@
+import { ConflictError, UnathorizedError } from "../errors/http_errors";
 import { Note } from "../models/note";
 import { User } from "../models/user";
 
@@ -8,7 +9,14 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
   } else {
     const errorBody = await response.json();
     const errorMessage = errorBody.error;
-    throw Error(errorMessage);
+
+    if(response.status === 401) {
+      throw new UnathorizedError(errorMessage);
+    } else if (response.status === 409){
+      throw new ConflictError(errorMessage);
+    } else{
+      throw Error("equest failed with status:" + response.status +"message" + errorMessage);
+    }
   }
 }
 export async function getLoggedInUser(): Promise<User> {
@@ -16,14 +24,14 @@ export async function getLoggedInUser(): Promise<User> {
   return response.json();
 }
 
-export interface SingUpCredentials {
+export interface SignUpCredentials {
   username: string,
   email: string,
   password: string,
 }
 
-export async function singUp(credentials: SingUpCredentials): Promise<User> {
-  const response = await fetchData("/api/users/singup", {
+export async function signUp(credentials: SignUpCredentials): Promise<User> {
+  const response = await fetchData("/api/users/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

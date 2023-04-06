@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Note } from "../models/note";
 import { NoteInput } from "../network/notes_api";
 import * as NotesApi from "../network/notes_api";
-import TextInputField from "./form/TextInpurField";
+import TextInputField from "./form/TextInputField";
 
 interface AddEditNoteDialogProps {
   noteToEdit?: Note;

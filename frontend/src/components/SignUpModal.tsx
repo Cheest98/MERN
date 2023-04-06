@@ -1,37 +1,52 @@
 import { useForm } from "react-hook-form";
 import { User } from "../models/user";
-import { SingUpCredentials } from "../network/notes_api";
-import * as  NotesApi from "../network/notes_api"
-import { Button, Form, Modal } from "react-bootstrap";
-import TextInputField from "./form/TextInpurField";
-import styleUtils from "../styles/utils.module.css"
+import { SignUpCredentials } from "../network/notes_api";
+import * as NotesApi from "../network/notes_api";
+import { Alert, Button, Form, Modal } from "react-bootstrap";
+import TextInputField from "./form/TextInputField";
+import styleUtils from "../styles/utils.module.css";
+import { useState } from 'react';
+import { ConflictError } from "../errors/http_errors";
 
-interface SingUpModalProps {
+interface SignUpModalProps {
     onDismiss: () => void,
-    onSingUpSucessful: (user: User) => void,
+    onSignUpSuccessful: (user: User) => void,
 }
 
-const SingUpModal = ({ onDismiss, onSingUpSucessful }: SingUpModalProps) => {
+const SignUpModal = ({ onDismiss, onSignUpSuccessful }: SignUpModalProps) => {
 
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SingUpCredentials>();
+    const [errorText, setErrorText] = useState<string | null>(null);
 
-    async function onSubmit(credentials: SingUpCredentials) {
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignUpCredentials>();
+
+    async function onSubmit(credentials: SignUpCredentials) {
         try {
-            const newUser = await NotesApi.singUp(credentials)
-            onSingUpSucessful(newUser)
+            const newUser = await NotesApi.signUp(credentials);
+            onSignUpSuccessful(newUser);
         } catch (error) {
-            alert(error);
-            console.error(error)
+            if (error instanceof ConflictError) {
+                setErrorText(error.message);
+            } else {
+                alert(error);
+            }
+            console.error(error);
         }
-
     }
+
     return (
         <Modal show onHide={onDismiss}>
             <Modal.Header closeButton>
-                <Modal.Title> Sing Up </Modal.Title>
+                <Modal.Title>
+                    Sign Up
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
+                {errorText &&
+                    <Alert variant="danger">
+                        {errorText}
+                    </Alert>
+                }
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <TextInputField
                         name="username"
@@ -42,8 +57,6 @@ const SingUpModal = ({ onDismiss, onSingUpSucessful }: SingUpModalProps) => {
                         registerOptions={{ required: "Required" }}
                         error={errors.username}
                     />
-                </Form>
-                <Form onSubmit={handleSubmit(onSubmit)}>
                     <TextInputField
                         name="email"
                         label="Email"
@@ -53,8 +66,6 @@ const SingUpModal = ({ onDismiss, onSingUpSucessful }: SingUpModalProps) => {
                         registerOptions={{ required: "Required" }}
                         error={errors.email}
                     />
-                </Form>
-                <Form onSubmit={handleSubmit(onSubmit)}>
                     <TextInputField
                         name="password"
                         label="Password"
@@ -64,18 +75,17 @@ const SingUpModal = ({ onDismiss, onSingUpSucessful }: SingUpModalProps) => {
                         registerOptions={{ required: "Required" }}
                         error={errors.password}
                     />
-                    <Button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={styleUtils.width100}>
-                
-                        Sing Up
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={styleUtils.width100}>
+                        Sign Up
                     </Button>
                 </Form>
             </Modal.Body>
-        </Modal>
 
+        </Modal>
     );
 }
 
-export default SingUpModal
+export default SignUpModal;

@@ -4,28 +4,24 @@ import UserModel from "../models/user";
 import bcrypt from "bcrypt";
 
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
-    const authenticatedUserId = req.session.userId;
     try {
-        if (!authenticatedUserId){
-            throw createHttpError(401, "User not authenticated");
-        }
-        const user = await UserModel.findById(authenticatedUserId).select("+email").exec();
+        const user = await UserModel.findById(req.session.userId).select("+email").exec();
         res.status(200).json(user);
     } catch (error) {
         next(error)
     }
 }
 
-interface SingUpBody {
+interface SignUpBody {
   username?: string;
   email?: string;
   password?: string;
 }
 
-export const singUp: RequestHandler<
+export const signUp: RequestHandler<
   unknown,
   unknown,
-  SingUpBody,
+  SignUpBody,
   unknown
 > = async (req, res, next) => {
   const username = req.body.username;
